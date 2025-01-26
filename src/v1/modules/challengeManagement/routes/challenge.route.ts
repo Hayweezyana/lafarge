@@ -1,29 +1,16 @@
 import express from "express";
+import { Response, Request } from "express";
 import { container } from "tsyringe";
-import  SubmissionsController  from "../controller/challenge.controller";
+import  ChallengeController  from "../controller/challenge.controller";
+import validate from "@shared/middlewares/validator.middleware";
+import { createSubmissionRules } from "../validations/challenge.validator";
 
 
-const submissionsController = container.resolve(SubmissionsController);
+const challengeController = container.resolve(ChallengeController);
 const router = express.Router();
 
-router.post("/submit", async (req, res) => {
-    try {
-      const submissionData = req.body;
-      await processSubmission(submissionData);
-      res.status(200).json({ message: "Submission processed successfully." });
-    } catch (error) {
-      console.error("Error processing submission:", error);
-      res.status(500).json({ message: "Failed to process submission." });
-    }
-  });
-router.get("/submit", (req, res) => submissionsController.getAllSubmissions(req, res));
+router.post("/submission", validate(createSubmissionRules), (req: Request, res: Response, next) => {
+	challengeController.createSubmission(req, res).catch((e) => next(e));
+});
 
 export default router;
-
-async function processSubmission(submissionData: any) {
-    // Implement your submission processing logic here
-    console.log("Processing submission:", submissionData);
-    // Example: Save submissionData to the database
-    // await database.save(submissionData);
-}
-
