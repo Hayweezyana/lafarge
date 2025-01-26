@@ -10,7 +10,7 @@
       "emitDecoratorMetadata": true,
       "esModuleInterop": true,
       "strictPropertyInitialization": false,
-      "outDir": ".src/dist",
+      "outDir": "./src/dist",
       "rootDir": "./src",
       "baseUrl": ".",
       "target": "es2021",
