@@ -1,1 +1,0 @@
-{"version":3,"file":"unauthorized.error.js","sourceRoot":"","sources":["../../../src/shared/error/unauthorized.error.ts"],"names":[],"mappings":";;;;;AAAA,8DAAqC;AACrC,4DAAmC;AAEnC,MAAqB,iBAAkB,SAAQ,mBAAQ;IACrD,YAAY,OAAgB;QAC1B,KAAK,CAAC,qBAAU,CAAC,YAAY,EAAE,OAAO,IAAI,+CAA+C,CAAC,CAAC;IAC7F,CAAC;CACF;AAJD,oCAIC"}
