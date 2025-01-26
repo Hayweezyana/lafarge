@@ -40,7 +40,7 @@ class SubmissionsController {
       });
 
       // Update the leaderboard with the calculated score
-      await this.leaderboardService.updateById(team, score);
+      await this.leaderboardService.updateLeaderboard();
 
       res.send(
         SuccessResponse(
@@ -53,13 +53,6 @@ class SubmissionsController {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       res.status(500).send(ErrorResponse("Failed to create submission", [errorMessage]));
     }
-  };
-
-  /**
-   * Delete a submission (future implementation)
-   */
-  deleteSubmission = async (_req: Request, res: Response) => {
-    res.send(SuccessResponse("Delete submission feature not implemented yet"));
   };
 
   /**
