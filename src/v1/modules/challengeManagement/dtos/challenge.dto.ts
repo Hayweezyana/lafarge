@@ -4,6 +4,10 @@ export interface LeaderboardDto {
   position: number;
   submissionId: string;
   totalScore: number;
+  teamName?: string;
+  teamNo?: string;
+  scenarioId?: number;
+  sessionId?: number;
 }
 
 export interface SubmissionDto {

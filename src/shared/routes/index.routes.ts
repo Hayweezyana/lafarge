@@ -8,5 +8,5 @@ export default {
 	app: appRoute,
 	health: healthRoute,
 	auditTrail: auditTrailRoute,
-	submissionsManagement: challengeRoute,
+	challengeManagement: challengeRoute,
 };

@@ -12,6 +12,11 @@ class ChallengeController {
     const result = await this.challengeService.createSubmissions(req.body);
     return res.status(httpStatus.OK).send(SuccessResponse("Operation successful", result));
   }
+
+  async getLeaderboard(req: Request, res: Response) {
+    const result = await this.challengeService.getLeaderboard(Number(req.params.sessionId));
+    return res.status(httpStatus.OK).send(SuccessResponse("Operation successful", result));
+  }
 }
 
 export default ChallengeController;

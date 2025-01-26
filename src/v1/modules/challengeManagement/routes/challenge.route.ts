@@ -9,8 +9,12 @@ import { createSubmissionRules } from "../validations/challenge.validator";
 const challengeController = container.resolve(ChallengeController);
 const router = express.Router();
 
-router.post("/submission", validate(createSubmissionRules), (req: Request, res: Response, next) => {
+router.post("/leaderboard/submission", validate(createSubmissionRules), (req: Request, res: Response, next) => {
 	challengeController.createSubmission(req, res).catch((e) => next(e));
+});
+
+router.get("/leaderboard/:sessionId", (req: Request, res: Response, next) => { 
+  challengeController.getLeaderboard(req, res).catch((e) => next(e));
 });
 
 export default router;

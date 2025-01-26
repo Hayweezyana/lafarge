@@ -3,7 +3,7 @@ export const createSubmissionRules = {
   teamNo: 'required|string',
   cost: 'required|number',
   constraint: 'required|number',
-  innovations: 'required|array',
+  innovations: 'required|object',
   sessionId: 'required|number',
   scenarioId: 'required|number',
 };

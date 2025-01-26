@@ -53,3 +53,7 @@ export enum MULTIPLIER {
 	CARBON_EMISSIONS = 1000, 
 	INNOVATION = 500,
 }
+
+export enum TEAM_NO {
+	MAX_TEAM = 5,
+}

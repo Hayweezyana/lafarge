@@ -35,7 +35,7 @@ class App {
 		this.app.use(express.json());
 		this.app.use(routes.app); // Register your main app routes
 		this.app.use(routes.health); // Register health check routes
-		this.app.use(RouteVersion.v1, routes.submissionsManagement);
+		this.app.use(RouteVersion.v1, routes.challengeManagement);
 	}
 
 	public getInstance() {
