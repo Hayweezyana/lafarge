@@ -40,7 +40,7 @@ class SubmissionsController {
       });
 
       // Update the leaderboard with the calculated score
-      await this.leaderboardService.updateLeaderboard();
+      await this.leaderboardService.updateById(team, score);
 
       res.send(
         SuccessResponse(
