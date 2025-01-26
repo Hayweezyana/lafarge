@@ -7,5 +7,7 @@ export enum DB_TABLES {
     MATERIALS = "materials",
     DYNAMIC_PROMPTS = "dynamic_prompts",
     SUBMISSIONS = "submissions",
+    SESSIONS = "sessions",
+    SESSION_TEAMS = "session_teams",
   }
   
