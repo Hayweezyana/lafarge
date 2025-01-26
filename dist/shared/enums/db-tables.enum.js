@@ -11,5 +11,7 @@ var DB_TABLES;
     DB_TABLES["MATERIALS"] = "materials";
     DB_TABLES["DYNAMIC_PROMPTS"] = "dynamic_prompts";
     DB_TABLES["SUBMISSIONS"] = "submissions";
+    DB_TABLES["SESSIONS"] = "sessions";
+    DB_TABLES["SESSION_TEAMS"] = "session_teams";
 })(DB_TABLES = exports.DB_TABLES || (exports.DB_TABLES = {}));
 //# sourceMappingURL=db-tables.enum.js.map

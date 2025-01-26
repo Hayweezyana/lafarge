@@ -6,5 +6,7 @@ export declare enum DB_TABLES {
     LEADERBOARD = "leaderboard",
     MATERIALS = "materials",
     DYNAMIC_PROMPTS = "dynamic_prompts",
-    SUBMISSIONS = "submissions"
+    SUBMISSIONS = "submissions",
+    SESSIONS = "sessions",
+    SESSION_TEAMS = "session_teams"
 }
