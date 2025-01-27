@@ -28,7 +28,6 @@ class ChallengeService {
 	async createSubmissions(data: SubmissionDto) {
 		const submission = ChallengeFactory.createSubmission(data);
 
-    //check if the team has already submitted for the session
     const existingSubmission = await this.submissionsRepo.findWhere({
       teamNo: data.teamNo,
       sessionId: data.sessionId,
