@@ -16,6 +16,7 @@ import {
 from "@shared/enums/grade.enum";
 import { ISubmission } from "../model/submission.model";
 import { ObjectLiteral } from "@shared/types/object-literal.type";
+import AppError from "@shared/error/app.error";
 
 @injectable()
 class ChallengeService {
@@ -26,6 +27,17 @@ class ChallengeService {
 
 	async createSubmissions(data: SubmissionDto) {
 		const submission = ChallengeFactory.createSubmission(data);
+
+    //check if the team has already submitted for the session
+    const existingSubmission = await this.submissionsRepo.findWhere({
+      teamNo: data.teamNo,
+      sessionId: data.sessionId,
+    });
+
+    if (existingSubmission.length > 0) {
+      throw new AppError(400, "Team has already submitted for the session");
+    }
+    
 		const result = await this.submissionsRepo
 			.save(submission)
 			.catch((error) => {
