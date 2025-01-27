@@ -60,7 +60,7 @@ class App {
 		}
 	}
 
-	public listen(port: number, address = "127.0.0.1") {
+	public listen(port: number, address = "0.0.0.0") {
 		return this.server.listen(port, address, () => {
 			logger.info(`Server listening on ${address}:${port}`);
 		});

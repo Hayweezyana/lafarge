@@ -27,7 +27,7 @@ DB_PORT=
 
 # Application Configuration
 APP_NAME=
-APP_HOME=127.0.0.1
+APP_HOME=0.0.0.0
 PORT=3000
 
 # Redis Configuration

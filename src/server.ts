@@ -16,7 +16,7 @@ process
     process.exit(0);
   });
 
-app.listen(appConfig.server.port, "127.0.0.1").on("error", (err) => {
+app.listen(appConfig.server.port, "0.0.0.0").on("error", (err) => {
   logger.error({ err });
   process.exit(1);
 });
