@@ -29,8 +29,6 @@ class ChallengeFactory {
 		data.innovations = submission.innovations;
 		data.sessionId = submission.sessionId;
 		data.scenarioId = submission.scenarioId;
-		data.createdAt = submission.createdAt;
-		data.updatedAt = submission.updatedAt;
 
 		return data;
 	}

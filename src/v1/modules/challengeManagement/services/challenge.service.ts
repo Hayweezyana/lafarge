@@ -20,69 +20,90 @@ import { ObjectLiteral } from "@shared/types/object-literal.type";
 @injectable()
 class ChallengeService {
 	constructor(
-    private readonly SubmissionsRepo: SubmissionsRepo, 
-    private readonly LeaderboardRepo: LeaderboardRepo
-  ) {}
+		private readonly submissionsRepo: SubmissionsRepo,
+		private readonly leaderboardRepo: LeaderboardRepo
+	) {}
 
 	async createSubmissions(data: SubmissionDto) {
 		const submission = ChallengeFactory.createSubmission(data);
-		const result = await this.SubmissionsRepo.save(submission).catch(
-			(error) => {
+		const result = await this.submissionsRepo
+			.save(submission)
+			.catch((error) => {
 				logger.error(error);
 				throw new Error(error);
-			}
-		);
+			});
 
-		const totalSubmissions = TEAM_NO.MAX_TEAM - 1;
-		const submissions = await this.SubmissionsRepo.findWhere({
+		const submissions = await this.submissionsRepo.findWhere({
 			sessionId: data.sessionId,
 		});
 
-		if (submissions.length === totalSubmissions) {
+		if (submissions.length === TEAM_NO.MAX_TEAM) {
+			logger.info("Calculating leaderboard", submissions);
 			this.calculateLeaderboard(submissions);
 		}
 
 		return ChallengeFactory.readSubmission(result);
 	}
 
-  async getLeaderboard(sessionId: number) {
-    const leaderboard = await this.LeaderboardRepo.findWhere({
-      sessionId,
-    });
+	async getLeaderboard(sessionId: number) {
+		const submissions = await this.submissionsRepo.findWhere({ sessionId });
 
-    return leaderboard.map((data) => ChallengeFactory.readLeaderboard(data));
-  }
+    const leaderboards = await this.leaderboardRepo.getAll();
 
-	calculateLeaderboard(submissions: ISubmission[]) {
-		const leaderboardSubmissionData: { submissionId: string; totalScore: number }[] = [];
-    submissions.forEach((submission) => {
-      const totalScore = this.calculatePoints(submission);
-      leaderboardSubmissionData.push({
-				submissionId: submission.id,
-				totalScore,
-			});
-    });
-
-    //dtermine the position based on the total score
-    leaderboardSubmissionData.sort((a, b) => b.totalScore - a.totalScore);
-    const leaderboard = leaderboardSubmissionData.map((data, index) => {
+    const result = submissions.map((submission) => {
+      const leaderboard = leaderboards.find(
+				(leaderboard) => leaderboard.submissionId === submission.id
+			);
       return {
-				position: index + 1,
-				submissionId: data.submissionId,
-				totalScore: data.totalScore,
+				position: leaderboard ? leaderboard.position : 0,
+				totalScore: leaderboard ? leaderboard.totalScore : 0,
+				teamName: submission.teamName,
+        teamNo: submission.teamNo,
+        cost: submission.cost,
+        constraint: submission.constraint,
+        innovations: submission.innovations,
+        scenarioId: submission.scenarioId,
+        sessionId: submission.sessionId,
 			};
     });
 
-    //save leaderboard
-    leaderboard.forEach(async (data) => {
-      const leaderboardData = ChallengeFactory.createLeaderboard(data);
-      await this.LeaderboardRepo.save(leaderboardData).catch(
-				(error) => {
-					logger.error(error);
-					throw new Error(error);
-				}
-			);
-    });
+    return result.sort((a, b) => a.position - b.position);
+	}
+
+	calculateLeaderboard(submissions: ISubmission[]) {
+		const leaderboardSubmissionData: {
+			submissionId: string;
+			totalScore: number;
+		}[] = [];
+		submissions.forEach((submission) => {
+			const totalScore = this.calculatePoints(submission);
+			leaderboardSubmissionData.push({
+				submissionId: submission.id,
+				totalScore,
+			});
+		});
+
+    logger.info("Leaderboard submission data", leaderboardSubmissionData);
+		//dtermine the position based on the total score
+		leaderboardSubmissionData.sort((a, b) => b.totalScore - a.totalScore);
+		const leaderboard = leaderboardSubmissionData.map((data, index) => {
+			return {
+				position: Math.round(index + 1),
+				submissionId: data.submissionId,
+				totalScore: Math.round(data.totalScore),
+			};
+		});
+
+    logger.info("Preparing to save leaderboard", leaderboard);
+		//save leaderboard
+		leaderboard.forEach(async (data) => {
+			const leaderboardData = ChallengeFactory.createLeaderboard(data);
+      logger.info("Leaderboard data", leaderboardData);
+			await this.leaderboardRepo.save(leaderboardData).catch((error) => {
+				logger.error(error);
+				throw new Error(error);
+			});
+		});
 	}
 
 	calculatePoints(submission) {
@@ -142,17 +163,18 @@ class ChallengeService {
 		let carbonEmmisionPoint = 0;
 
 		//check for required innovations
-		if 
-    (
-			(
-        SCENERIO_ONE.MUST_HAVE_DURABILITY_SURGE !== innovations.durabilitySurge &&
-				SCENERIO_ONE.MUST_HAVE_WATER_PROOFING !== innovations.waterProofing
-      ) ||
+		if (
+			(SCENERIO_ONE.MUST_HAVE_DURABILITY_SURGE !==
+				innovations.hasDurabilitySurge &&
+				SCENERIO_ONE.MUST_HAVE_WATER_PROOFING !==
+					innovations.hasWaterProofing) ||
 			!innovations ||
-			!innovations.durabilitySurge ||
-			!innovations.waterProofing
+			!innovations.hasDurabilitySurge ||
+			!innovations.hasWaterProofing
 		) {
 			innovationPoint = innovationPoint * MULTIPLIER.INNOVATION;
+		} else {
+			innovationPoint = MULTIPLIER.INNOVATION;
 		}
 
 		//compute cost point
@@ -170,7 +192,8 @@ class ChallengeService {
 			constraint >= SCENERIO_ONE.MIN_CARBON_EMISSIONS &&
 			constraint <= SCENERIO_ONE.MAX_CARBON_EMISSIONS
 		) {
-			carbonEmmisionPoint = (1 / (1 + 0.1 * constraint)) * MULTIPLIER.CARBON_EMISSIONS;
+			carbonEmmisionPoint =
+				(1 / (1 + 0.1 * constraint)) * MULTIPLIER.CARBON_EMISSIONS;
 		} else {
 			carbonEmmisionPoint = 0;
 		}
@@ -187,17 +210,16 @@ class ChallengeService {
 		let carbonEmmisionPoint = 0;
 
 		//check for required innovations
-		if 
-    (
-			(
-        SCENERIO_TWO.MUST_HAVE_ECO_BOOST !== innovations.ecoBoost &&
-				SCENERIO_TWO.MUST_HAVE_GREEN_BLEND !== innovations.greenBlend
-      ) ||
+		if (
+			(SCENERIO_TWO.MUST_HAVE_ECO_BOOST !== innovations.hasEcoBoost &&
+				SCENERIO_TWO.MUST_HAVE_GREEN_BLEND !== innovations.hasGreenBlend) ||
 			!innovations ||
-			!innovations.ecoBoost ||
-			!innovations.greenBlend
+			!innovations.hasEcoBoost ||
+			!innovations.hasGreenBlend
 		) {
 			innovationPoint = innovationPoint * MULTIPLIER.INNOVATION;
+		} else {
+			innovationPoint = MULTIPLIER.INNOVATION;
 		}
 
 		//compute cost point
@@ -215,7 +237,8 @@ class ChallengeService {
 			constraint >= SCENERIO_TWO.MIN_CARBON_EMISSIONS &&
 			constraint <= SCENERIO_TWO.MAX_CARBON_EMISSIONS
 		) {
-			carbonEmmisionPoint = (1 / (1 + 0.1 * constraint)) * MULTIPLIER.CARBON_EMISSIONS;
+			carbonEmmisionPoint =
+				(1 / (1 + 0.1 * constraint)) * MULTIPLIER.CARBON_EMISSIONS;
 		} else {
 			carbonEmmisionPoint = 0;
 		}
@@ -232,17 +255,18 @@ class ChallengeService {
 		let carbonEmmisionPoint = 0;
 
 		//check for required innovations
-		if 
-    (
-			(
-        SCENERIO_THREE.MUST_HAVE_SMART_STRENGTH_BLEND !== innovations.smartStrengthBlend &&
-				SCENERIO_THREE.MUST_HAVE_INDUSTRIAL_GRADE_BOOST !== innovations.industrialGradeBoost
-      ) ||
+		if (
+			(SCENERIO_THREE.MUST_HAVE_SMART_STRENGTH_BLEND !==
+				innovations.hasSmartStrengthBlend &&
+				SCENERIO_THREE.MUST_HAVE_INDUSTRIAL_GRADE_BOOST !==
+					innovations.hasIndustrialGradeBoost) ||
 			!innovations ||
-			!innovations.smartStrengthBlend ||
-			!innovations.industrialGradeBoost
+			!innovations.hasSmartStrengthBlend ||
+			!innovations.hasIndustrialGradeBoost
 		) {
 			innovationPoint = innovationPoint * MULTIPLIER.INNOVATION;
+		} else {
+			innovationPoint = MULTIPLIER.INNOVATION;
 		}
 
 		//compute cost point
@@ -260,7 +284,8 @@ class ChallengeService {
 			constraint >= SCENERIO_THREE.MIN_CARBON_EMISSIONS &&
 			constraint <= SCENERIO_THREE.MAX_CARBON_EMISSIONS
 		) {
-			carbonEmmisionPoint = (1 / (1 + 0.1 * constraint)) * MULTIPLIER.CARBON_EMISSIONS;
+			carbonEmmisionPoint =
+				(1 / (1 + 0.1 * constraint)) * MULTIPLIER.CARBON_EMISSIONS;
 		} else {
 			carbonEmmisionPoint = 0;
 		}
@@ -277,17 +302,18 @@ class ChallengeService {
 		let carbonEmmisionPoint = 0;
 
 		//check for required innovations
-		if 
-    (
-			(
-        SCENERIO_FOUR.MUST_HAVE_AFFORDABLE_MIX !== innovations.affordableMix &&
-				SCENERIO_FOUR.MUST_HAVE_HOUSING_STRENGTH_BOOST !== innovations.housingStrengthBoost
-        ) ||
+		if (
+			(SCENERIO_FOUR.MUST_HAVE_AFFORDABLE_MIX !==
+				innovations.hasAffordableMix &&
+				SCENERIO_FOUR.MUST_HAVE_HOUSING_STRENGTH_BOOST !==
+					innovations.hasHousingStrengthBoost) ||
 			!innovations ||
-			!innovations.affordableMix ||
-			!innovations.housingStrengthBoost
+			!innovations.hasAffordableMix ||
+			!innovations.hasHousingStrengthBoost
 		) {
 			innovationPoint = innovationPoint * MULTIPLIER.INNOVATION;
+		} else {
+			innovationPoint = MULTIPLIER.INNOVATION;
 		}
 
 		//compute cost point
@@ -305,7 +331,8 @@ class ChallengeService {
 			constraint >= SCENERIO_FOUR.MIN_CARBON_EMISSIONS &&
 			constraint <= SCENERIO_FOUR.MAX_CARBON_EMISSIONS
 		) {
-			carbonEmmisionPoint = (1 / (1 + 0.1 * constraint)) * MULTIPLIER.CARBON_EMISSIONS;
+			carbonEmmisionPoint =
+				(1 / (1 + 0.1 * constraint)) * MULTIPLIER.CARBON_EMISSIONS;
 		} else {
 			carbonEmmisionPoint = 0;
 		}
@@ -316,25 +343,24 @@ class ChallengeService {
 		cost: number,
 		constraint: number,
 		innovations: ObjectLiteral
-	) 
-  {
+	) {
 		let innovationPoint = 0;
 		let costPoint = 0;
 		let carbonEmmisionPoint = 0;
 
 		//check for required innovations
-		if 
-    (
-			(
-        SCENERIO_FIVE.MUST_HAVE_SMART_STRENGTH_BLEND !== innovations.smartStrengthBlend 
-        &&
-				SCENERIO_FIVE.MUST_HAVE_WEATHER_SHIELD !== innovations.weatherShield
-      ) ||
+		if (
+			(SCENERIO_FIVE.MUST_HAVE_SMART_STRENGTH_BLEND !==
+				innovations.hasSmartStrengthBlend &&
+				SCENERIO_FIVE.MUST_HAVE_WEATHER_SHIELD !==
+					innovations.hasWeatherShield) ||
 			!innovations ||
-			!innovations.smartStrengthBlend ||
-			!innovations.weatherShield
+			!innovations.hasSmartStrengthBlend ||
+			!innovations.hasWeatherShield
 		) {
 			innovationPoint = innovationPoint * MULTIPLIER.INNOVATION;
+		} else {
+			innovationPoint = MULTIPLIER.INNOVATION;
 		}
 
 		//compute cost point
@@ -352,7 +378,8 @@ class ChallengeService {
 			constraint >= SCENERIO_FIVE.MIN_CARBON_EMISSIONS &&
 			constraint <= SCENERIO_FIVE.MAX_CARBON_EMISSIONS
 		) {
-			carbonEmmisionPoint = (1 / (1 + 0.1 * constraint)) * MULTIPLIER.CARBON_EMISSIONS;
+			carbonEmmisionPoint =
+				(1 / (1 + 0.1 * constraint)) * MULTIPLIER.CARBON_EMISSIONS;
 		} else {
 			carbonEmmisionPoint = 0;
 		}

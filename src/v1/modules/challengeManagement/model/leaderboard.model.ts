@@ -8,8 +8,6 @@ export class Leaderboard extends Model {
   position: number;
   submissionId: string;
   totalScore: number;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export type ILeaderboard = ModelObject<Leaderboard>;
