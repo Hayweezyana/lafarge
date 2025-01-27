@@ -1,5 +1,5 @@
 import { getEnv } from "./env.config";
-
+console.log("::redis is running");
 const appConfig = {
   app: {
     name: process.env.APP_NAME,

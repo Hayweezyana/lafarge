@@ -42,7 +42,6 @@ class App {
     registerModules() {
         this.app.use(express_1.default.json());
         this.app.use(index_routes_1.default.app);
-        this.app.use(index_routes_1.default.health);
         this.app.use(route_config_1.default.v1, index_routes_1.default.challengeManagement);
     }
     getInstance() {
