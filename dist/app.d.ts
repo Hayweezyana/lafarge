@@ -11,7 +11,6 @@ declare class App {
     private io;
     constructor();
     private registerModules;
-    private initializeSocket;
     getInstance(): express.Application;
     getSocketInstance(): SocketIOServer<import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, any>;
     private globalErrorHandler;

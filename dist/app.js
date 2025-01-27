@@ -8,7 +8,6 @@ require("dotenv/config");
 require("module-alias/register");
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
-const socket_io_1 = require("socket.io");
 const bootstrap_1 = require("./bootstrap");
 const route_config_1 = __importDefault(require("@config/route.config"));
 const index_routes_1 = __importDefault(require("./shared/routes/index.routes"));
@@ -39,37 +38,12 @@ class App {
         this.globalErrorHandler();
         this.undefinedRoutesErrorHandler();
         this.server = http_1.default.createServer(this.app);
-        this.io = new socket_io_1.Server(this.server, {
-            maxHttpBufferSize: 1e6,
-            cors: {
-                origin: "http://localhost:3000",
-                methods: ["GET", "POST"],
-                credentials: true,
-            },
-        });
-        this.initializeSocket();
     }
     registerModules() {
         this.app.use(express_1.default.json());
         this.app.use(index_routes_1.default.app);
         this.app.use(index_routes_1.default.health);
-        this.app.use(route_config_1.default.v1, index_routes_1.default.submissionsManagement);
-        this.app.use(route_config_1.default.v1, index_routes_1.default.leaderboardManagement);
-        this.app.use(route_config_1.default.v1, index_routes_1.default.teamsManagement);
-        this.app.use(route_config_1.default.v1, index_routes_1.default.dynamicPromptsManagement);
-        this.app.use(route_config_1.default.v1, index_routes_1.default.materialsManagement);
-    }
-    initializeSocket() {
-        this.io.on("connection", (socket) => {
-            logger_1.default.info(`A client connected: ${socket.id}`);
-            socket.on("message", (data) => {
-                logger_1.default.info(`Received message: ${data}`);
-                socket.emit("response", { message: "Hello from the server!" });
-            });
-            socket.on("disconnect", () => {
-                logger_1.default.info(`Client disconnected: ${socket.id}`);
-            });
-        });
+        this.app.use(route_config_1.default.v1, index_routes_1.default.challengeManagement);
     }
     getInstance() {
         return this.app;

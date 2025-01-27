@@ -24,4 +24,5 @@ dist
 *.key
 package-lock.json
 .env
-uploads
+
+.eslintrc.js

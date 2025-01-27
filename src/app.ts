@@ -29,50 +29,14 @@ class App {
 		this.undefinedRoutesErrorHandler();
 
 		this.server = http.createServer(this.app);
-
-		
-
-		// Initialize Socket.IO
-		this.io = new SocketIOServer(this.server, {
-			maxHttpBufferSize: 1e6,
-			cors: {
-			  origin: "http://localhost:3000", // Update as per your frontend URL
-			  methods: ["GET", "POST"],
-			  credentials: true,
-  },
-		  });
-	  
-		  this.initializeSocket();
 	}
 
 	private registerModules() {
 		this.app.use(express.json());
 		this.app.use(routes.app); // Register your main app routes
 		this.app.use(routes.health); // Register health check routes
-		this.app.use(RouteVersion.v1, routes.submissionsManagement);
-		this.app.use(RouteVersion.v1, routes.leaderboardManagement);
-		this.app.use(RouteVersion.v1, routes.teamsManagement);
-		this.app.use(RouteVersion.v1, routes.dynamicPromptsManagement);
-		this.app.use(RouteVersion.v1, routes.materialsManagement);
-		
-		
+		this.app.use(RouteVersion.v1, routes.challengeManagement);
 	}
-
-	private initializeSocket() {
-		this.io.on("connection", (socket) => {
-		  logger.info(`A client connected: ${socket.id}`);
-	
-		  // Example: Emit and listen to events
-		  socket.on("message", (data) => {
-			logger.info(`Received message: ${data}`);
-			socket.emit("response", { message: "Hello from the server!" });
-		  });
-	
-		  socket.on("disconnect", () => {
-			logger.info(`Client disconnected: ${socket.id}`);
-		  });
-		});
-	  }
 
 	public getInstance() {
 		return this.app;
@@ -80,7 +44,7 @@ class App {
 
 	public getSocketInstance() {
 		return this.io;
-	  }
+	}
 
 	private globalErrorHandler() {
 		setErrorHandler(this.app);

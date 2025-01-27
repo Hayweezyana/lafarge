@@ -26,7 +26,7 @@ let AppController = class AppController {
             enumerable: true,
             configurable: true,
             writable: true,
-            value: async (res) => {
+            value: async (_req, res) => {
                 res.send(this.appService.getHello());
             }
         });
