@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const env_config_1 = require("./env.config");
+console.log("::redis is running");
 const appConfig = {
     app: {
         name: process.env.APP_NAME,
@@ -9,6 +10,11 @@ const appConfig = {
     },
     server: {
         port: Number(process.env.PORT),
+    },
+    redis: {
+        host: String(process.env.REDIS_HOST),
+        port: Number(process.env.REDIS_PORT),
+        password: String(process.env.REDIS_PASSWORD),
     },
     database: {
         DB_CLIENT: process.env.DB_CLIENT,

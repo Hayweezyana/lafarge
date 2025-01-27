@@ -7,7 +7,7 @@
     "keywords": [],
     "scripts": {
       "dev": "nodemon --watch src --exec ts-node src/server.ts",
-      "start": "node dist/src/server.js",
+      "start": "node dist/server.js",
       "build": "tsc",
       "postbuild": "copyfiles -u 4 \"src/shared/mailer/views/**/*\" dist/shared/mailer/views",
       "prepare": "husky install",
@@ -19,6 +19,7 @@
       "db:migrate": "npm run knex -- migrate:latest",
       "db:migrate:rollback": "npm run knex -- migrate:rollback",
       "db:seed": "npm run knex -- seed:run"
+      
       
     },
     "devDependencies": {
