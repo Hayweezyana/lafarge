@@ -5,7 +5,6 @@ export class Leaderboard extends Model {
   static tableName = DB_TABLES.LEADERBOARD;
 
   id: string;
-  position: number;
   submissionId: string;
   totalScore: number;
 }

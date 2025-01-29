@@ -14,6 +14,7 @@ class ChallengeFactory {
 		submission.innovations = data.innovations;
 		submission.sessionId = data.sessionId;
 		submission.scenarioId = data.scenarioId;
+		submission.margin = data.margin;
 
 		return submission;
 	}
@@ -29,6 +30,7 @@ class ChallengeFactory {
 		data.innovations = submission.innovations;
 		data.sessionId = submission.sessionId;
 		data.scenarioId = submission.scenarioId;
+		data.margin = submission.margin;
 
 		return data;
 	}
@@ -36,7 +38,6 @@ class ChallengeFactory {
 	static createLeaderboard(data: LeaderboardDto) {
 		const leaderboard = {} as ILeaderboard;
 
-		leaderboard.position = data.position;
 		leaderboard.submissionId = data.submissionId;
 		leaderboard.totalScore = data.totalScore;
 

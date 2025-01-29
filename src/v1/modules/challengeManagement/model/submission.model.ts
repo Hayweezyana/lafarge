@@ -13,6 +13,7 @@ export class Submission extends Model {
   innovations: ObjectLiteral;
   sessionId: number;
   scenarioId: number;
+  margin: number;
 }
 
 export type ISubmission = ModelObject<Submission>;

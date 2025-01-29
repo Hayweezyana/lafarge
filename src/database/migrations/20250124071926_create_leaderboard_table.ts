@@ -4,7 +4,6 @@ import { DB_TABLES } from "../../shared/enums/db-tables.enum";
 exports.up = function (knex) {
   return knex.schema.createTable(DB_TABLES.LEADERBOARD, (table: Knex.TableBuilder) => {
     table.uuid("id").primary().defaultTo(knex.fn.uuid());
-		table.integer("position").nullable();
 		table.uuid("submissionId").notNullable();
 		table.integer("totalScore").notNullable();
 		table.timestamps(true, true);

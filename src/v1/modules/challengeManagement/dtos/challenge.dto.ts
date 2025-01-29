@@ -1,13 +1,13 @@
 import { ObjectLiteral } from "@shared/types/object-literal.type";
 
 export interface LeaderboardDto {
-  position: number;
-  submissionId: string;
-  totalScore: number;
-  teamName?: string;
-  teamNo?: string;
-  scenarioId?: number;
-  sessionId?: number;
+	submissionId: string;
+	totalScore: number;
+	teamName?: string;
+	teamNo?: string;
+	scenarioId?: number;
+	sessionId?: number;
+	position?: number;
 }
 
 export interface SubmissionDto {
@@ -18,6 +18,7 @@ export interface SubmissionDto {
 	innovations: ObjectLiteral;
 	sessionId: number;
 	scenarioId: number;
+  margin: number;
 	id?: string;
   createdAt?: Date;
   updatedAt?: Date;

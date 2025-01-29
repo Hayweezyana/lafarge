@@ -6,6 +6,7 @@ export const createSubmissionRules = {
   innovations: 'required|object',
   sessionId: 'required|number',
   scenarioId: 'required|number',
+  margin: 'required|number',
 };
 
 
